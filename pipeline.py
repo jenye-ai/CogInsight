@@ -46,7 +46,7 @@ class VideoPipeline():
         print("Running SmileCNN ...")
         #Load the feature extractor
         model = SmileCNNSVM()
-        model.load_state_dict(torch.load(constants.SMILECNN_PATH))
+        model.load_state_dict(torch.load(constants.SMILECNN_PATH, map_location=torch.device('cpu')))
         model.eval()
         dataset = VideoFrameData(self.prefix, self.final_count,  self.processed_path)
         data_loader = DataLoader(dataset, batch_size=len(dataset), shuffle=False)

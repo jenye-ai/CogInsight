@@ -292,7 +292,6 @@ class EmotionDetector():
         return self.detect(result), result["valence"], result["arousal"]
 
     def detect(self, value):
-        print(value["expression"].cpu().numpy())
         expression = np.argmax(value["expression"].cpu().numpy())
         valence = float(value['valence'])
         arousal = float(value['arousal'])
