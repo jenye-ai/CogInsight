@@ -9,3 +9,6 @@ PROCESSED_DIR =  "processed_frames"
 #SmileCNN
 SMILECNN_PATH = "C:/Code/462ModelPipeline/video_models/smileCNN_iter2.pt"
 SVM_PATH = "C:/Code/462ModelPipeline/video_models/smileCNN_iter2_SVM.model"
+
+#Emonet
+EMONET_PATH = "C:/Code/462ModelPipeline/video_models/emonet_8.pth"

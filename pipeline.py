@@ -1,12 +1,15 @@
 import cv2
 import constants
+import collections
+import numpy as np
 import os
 import torch
 import pickle
 
 from torch.utils.data import DataLoader
 from helpers import Preprocess, VideoFrameData
-from models import SmileCNNSVM
+from models import SmileCNNSVM, EmotionDetector
+EXPRESSIONS = {0: 'neutral', 1:'happy', 2:'sad', 3:'surprise', 4:'fear', 5:'disgust', 6:'anger', 7:'contempt', 8:'none'}
 
 class VideoPipeline():
     def __init__(self, dir, frameRate=0.5, prefix = "image", folder = "original_frames", processed_folder = "processed_frames"):
@@ -17,6 +20,9 @@ class VideoPipeline():
         self.final_count = None
         self.num_smiles = 0
         self.time_smiling = 0
+        self.valence = []
+        self.arousal = []
+        self.emotion = []
 
         pass
         
@@ -29,7 +35,7 @@ class VideoPipeline():
         if not os.path.exists(self.processed_path):
             os.mkdir(self.processed_path)
         print("Converting Video to Frames ...")
-        self._convertToFrames(video_path)
+        images = self._convertToFrames(video_path)
 
         #Step 1 crop images
         print("Processing frames for SmileCNN ...")
@@ -51,32 +57,52 @@ class VideoPipeline():
                 yhat, svm_features = model(x)
         print("Feature Generation Complete!")
 
-
+        print("Detecting Smiles ...")
         SVM_model = pickle.load(open(constants.SVM_PATH, 'rb'))
         smiles = SVM_model.predict(svm_features)
-        self.time_smiling = smiles.count(1)*self.frameRate
-        #get number of times smiled 
 
+        print("Calculating Time Smiling ...")
+        self.time_smiling = collections.Counter(smiles)[1]*self.frameRate
 
-        #for i in smiles:
-
-
+        print("Calculating Number of Smiles ...")
+        prev = 0
+        for i in smiles:
+            if prev==0 and i==1:
+                self.num_smiles += 1
+                prev = 1
+            elif i==0:
+                prev = 0
+        
+        print("Calculating Emotions, Valence, and Arousal ...")
         #step 3 valence and arousal
-
-        #Load Video and save into frames
-        pass
+        emonet = EmotionDetector(constants.EMONET_PATH)
+        for i in images[:-1]:
+            expression, valence, arousal = emonet.execute(i)
+            self.valence.append(valence)
+            self.arousal.append(arousal)
+            self.emotion.append(expression)
+        print("Finish!")
+        return {"num_smiles": self.num_smiles,
+                "time_smiling": self.time_smiling,
+                "valence": self.valence,
+                "arousal": self.arousal,
+                "emotion": self.emotion}
         
     def _convertToFrames(self, file_path):
         video = cv2.VideoCapture(file_path)
         sec = 0
         count=1
-        success = self.getFrame(video, sec, count)
+        images = []
+        success, image = self.getFrame(video, sec, count)
+        images.append(image)
         while success:
             count = count + 1
             sec = sec + self.frameRate
             sec = round(sec, 2)
-            success = self.getFrame(video, sec, count)
+            success, image = self.getFrame(video, sec, count)
+            images.append(image)
         self.final_count = count
+        return images
 
     def getFrame(self, videoframe, sec, count):
         videoframe.set(cv2.CAP_PROP_POS_MSEC,sec*1000)
@@ -84,4 +110,5 @@ class VideoPipeline():
         if hasFrames:
             path = self.frame_path + self.prefix+str(count)+".jpg"
             cv2.imwrite(path, image)     # save frame as JPG file
-        return hasFrames
+        return hasFrames, image
+    
