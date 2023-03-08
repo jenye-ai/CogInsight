@@ -51,7 +51,26 @@ class MainWindow(QMainWindow):
         # cv2.imshow('dna', image)
         qImg = QImage(image.data, width, height, step, QImage.Format_RGB888)
         # show image in img_label
+
+        label_width = self.ui.image_label.width()
+        label_height = self.ui.image_label.height()
+        img_ratio = width / height
+        label_ratio = label_width / label_height
+
+        if img_ratio > label_ratio:
+            # image is wider than label, scale by width
+            scaled_width = label_width
+            scaled_height = int(label_width / img_ratio)
+        else:
+            # image is taller than label, scale by height
+            scaled_height = label_height
+            scaled_width = int(label_height * img_ratio)
+
+        qImg = qImg.scaled(scaled_width, scaled_height, Qt.KeepAspectRatio)
         self.ui.image_label.setPixmap(QPixmap.fromImage(qImg))
+        
+
+        
 
         # write image to video
         if self.video_writer is not None:
@@ -71,7 +90,11 @@ class MainWindow(QMainWindow):
         # if timer is stopped
         if not self.timer.isActive():
             # create video capture
-            self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+            if constants.PC_TYPE == "Mac":
+                self.cap = cv2.VideoCapture(0)
+            else:
+                self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+                
             self.start_time = time.time()
 
             # initialize video writer

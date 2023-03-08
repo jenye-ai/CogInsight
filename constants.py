@@ -6,6 +6,9 @@ IMAGE_PREFIX = "image"
 FRAME_DIR = "original_frames"
 PROCESSED_DIR =  "processed_frames"
 
+
+PC_TYPE = "Mac" #Mac or Windows
+
 #SmileCNN
 SMILECNN_PATH = "video_models/smileCNN_iter2.pt"
 SVM_PATH = "video_models/smileCNN_iter2_SVM.model"
