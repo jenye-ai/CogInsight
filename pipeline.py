@@ -84,9 +84,11 @@ class VideoPipeline():
         print("Finish!")
         return {"num_smiles": self.num_smiles,
                 "time_smiling": self.time_smiling,
-                "valence": self.valence,
-                "arousal": self.arousal,
-                "emotion": self.emotion}
+                "valence": np.squeeze(np.array([t.numpy() for t in self.valence]).astype(float)),
+                "arousal": np.squeeze(np.array([t.numpy() for t in self.arousal]).astype(float)),
+                "emotion": self.emotion,
+                "frames": len(self.emotion),
+                "time": len(self.emotion)*self.frameRate}
         
     def _convertToFrames(self, file_path):
         video = cv2.VideoCapture(file_path)

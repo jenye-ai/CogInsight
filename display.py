@@ -6,6 +6,15 @@ from ui_mainwindow import Ui_Form
 
 import cv2
 import time
+import matplotlib
+matplotlib.use('Qt5Agg')
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+import matplotlib.pyplot as plt
+from matplotlib import cm, gridspec
+import random 
+import numpy as np
+import collections
 
 import constants
 from pipeline import VideoPipeline
@@ -94,24 +103,78 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Processing your video...")
         self.loading.show()
 
+class MplCanvas(FigureCanvas):
+
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        super(MplCanvas, self).__init__(fig)
+
 class LoadingScreen(QWidget):
 
     def __init__(self):
         super().__init__()
+        self.metrics = {}
+        self.setWindowTitle("Processing Video ...")
 
         print('Thread is to be called here...')
         self.load()
         print('Thread has been called...')
 
-        # btn= QPushButton('Test button')
-        # vbox = QVBoxLayout()
-        # vbox.addWidget(btn)
-        # self.setLayout(vbox)
-        self.show()
+        self.figure = plt.figure()
+  
+        # this is the Canvas Widget that
+        # displays the 'figure'it takes the
+        # 'figure' instance as a parameter to __init__
+        self.canvas = FigureCanvas(self.figure)
+  
+        # this is the Navigation widget
+        # it takes the Canvas widget and a parent
+        self.toolbar = NavigationToolbar(self.canvas, self)
+
+        #### PLOTTING DONE HERE #####
+        # random data
+        print(self.metrics)
+        # clearing old figure
+        self.figure.clear() 
+        # create an axis
+        a0 = self.figure.add_subplot(2,2,2)
+        a1 = self.figure.add_subplot(2,2,4)
+        a2 = self.figure.add_subplot(121, polar=True)
+
+        #a0 is the number of smiles
+        self.draw_bar(self.metrics["num_smiles"],self.metrics["num_smiles"]*2, a0)
+        a0.set_title('Number of Smiles')
+        #a1 is the time spent smiling
+        self.draw_bar(self.metrics["time_smiling"],self.metrics["time"], a1)
+        a1.set_title('Time Spent Smiling')
+        #a2 is the radar plot
+        self.draw_radar(self.metrics, a2)
+
+        # refresh canvas
+        self.canvas.draw()
+
+        #####
+  
+        # creating a Vertical Box layout
+        layout = QVBoxLayout()
+          
+        # adding tool bar to the layout
+        layout.addWidget(self.toolbar)
+          
+        # adding canvas to the layout
+        layout.addWidget(self.canvas)
+          
+          
+        # setting layout to the main window
+        self.setWindowTitle("Results")
+        self.setLayout(layout)
+  
 
     def load(self):
         # setup dialog
         dialog = QDialog(self)
+        dialog.setWindowTitle("Processing Data ...")
         vbox = QVBoxLayout()
         lbl = QLabel(self)
         self.moviee = QMovie('loading.gif')
@@ -122,6 +185,7 @@ class LoadingScreen(QWidget):
 
         # setup thread
         thread = Worker()
+        thread.report.connect(self.update_report)
         thread.finished.connect(thread.deleteLater)
         thread.finished.connect(dialog.close)
         thread.finished.connect(dialog.deleteLater)
@@ -129,13 +193,47 @@ class LoadingScreen(QWidget):
 
         dialog.exec()
 
+    def update_report(self, report_data):
+        self.metrics = report_data
+
+    def draw_bar(self,level,max_level, ax):
+        ax.bar([0], [max_level], width=1, edgecolor='black', fill=False)
+        ax.bar([0], [level], width=1, color='blue')
+        ax.set_xlim([0, max_level])
+        ax.set_ylim([0, max_level])
+        ax.tick_params(labelbottom=False)    
+        ax.set_xticks([])
+        return ax
+    
+    def draw_radar(self,report, ax):
+        categories = ['neutral', 'happy','sad', 'surprise', 'fear', 'disgust', 'anger', 'contempt', 'none']
+        categories = [*categories, categories[0]]
+        count = collections.Counter(report["emotion"])
+        for i in range(0,9):
+            if i not in count.keys():
+                count[i] = 0
+        web = [count[i] for i in sorted(count.keys())]
+        web = [*web, web[0]]
+
+        label_loc = np.linspace(start=0, stop=2 * np.pi, num=len(web))
+
+        ax.plot(label_loc, web, label='Emotions')
+        ax.set_title('Distribution of emotions')
+        ax.set_thetagrids(np.degrees(label_loc), labels=categories)
+
+    
+        
 
 class Worker(QThread):
+    finished = pyqtSignal()
+    report = pyqtSignal(object)
 
     def run(self):
-        pipeline = VideoPipeline(constants.OUTPUT_DIR, frameRate=constants.FRAME_RATE, prefix = constants.IMAGE_PREFIX, folder = constants.FRAME_DIR, processed_folder = constants.PROCESSED_DIR,)
+        pipeline = VideoPipeline(constants.OUTPUT_DIR, frameRate=constants.FRAME_RATE, prefix = constants.IMAGE_PREFIX, folder = constants.FRAME_DIR, processed_folder = constants.PROCESSED_DIR)
         report = pipeline.execute(constants.VIDEO_PATH)
-        print(report)
+        self.report.emit(report)
+        self.finished.emit()
+        
 
 
 if __name__ == '__main__':
