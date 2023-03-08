@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Ui_Form</class>
- <widget class="QMainWindow" name="Ui_Form">
+ <class>Form</class>
+ <widget class="QMainWindow" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -20,7 +20,7 @@
       <x>0</x>
       <y>0</y>
       <width>801</width>
-      <height>441</height>
+      <height>501</height>
      </rect>
     </property>
     <property name="text">
@@ -30,9 +30,9 @@
    <widget class="QPushButton" name="control_bt">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>490</y>
-      <width>141</width>
+      <x>20</x>
+      <y>500</y>
+      <width>751</width>
       <height>41</height>
      </rect>
     </property>

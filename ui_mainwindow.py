@@ -12,41 +12,31 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_Form(object):
-    def setupUi(self, Ui_Form):
-        Ui_Form.setObjectName("Ui_Form")
-        Ui_Form.resize(800, 600)
-        self.centralwidget = QtWidgets.QWidget(Ui_Form)
+    def setupUi(self, Form):
+        Form.setObjectName("Form")
+        Form.resize(800, 600)
+        self.centralwidget = QtWidgets.QWidget(Form)
         self.centralwidget.setObjectName("centralwidget")
         self.image_label = QtWidgets.QLabel(self.centralwidget)
-        self.image_label.setGeometry(QtCore.QRect(0, 0, 801, 441))
+        self.image_label.setGeometry(QtCore.QRect(0, 0, 801, 501))
         self.image_label.setText("")
         self.image_label.setObjectName("image_label")
         self.control_bt = QtWidgets.QPushButton(self.centralwidget)
-        self.control_bt.setGeometry(QtCore.QRect(320, 490, 141, 41))
+        self.control_bt.setGeometry(QtCore.QRect(20, 500, 751, 41))
         self.control_bt.setObjectName("control_bt")
-        Ui_Form.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(Ui_Form)
+        Form.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(Form)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
         self.menubar.setObjectName("menubar")
-        Ui_Form.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(Ui_Form)
+        Form.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(Form)
         self.statusbar.setObjectName("statusbar")
-        Ui_Form.setStatusBar(self.statusbar)
+        Form.setStatusBar(self.statusbar)
 
-        self.retranslateUi(Ui_Form)
-        QtCore.QMetaObject.connectSlotsByName(Ui_Form)
+        self.retranslateUi(Form)
+        QtCore.QMetaObject.connectSlotsByName(Form)
 
-    def retranslateUi(self, Ui_Form):
+    def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Ui_Form.setWindowTitle(_translate("Ui_Form", "MainWindow"))
-        self.control_bt.setText(_translate("Ui_Form", "Record"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Ui_Form = QtWidgets.QMainWindow()
-    ui = Ui_Ui_Form()
-    ui.setupUi(Ui_Form)
-    Ui_Form.show()
-    sys.exit(app.exec_())
+        Form.setWindowTitle(_translate("Form", "MainWindow"))
+        self.control_bt.setText(_translate("Form", "Record"))
