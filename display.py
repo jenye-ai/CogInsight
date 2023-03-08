@@ -1,67 +1,80 @@
 import sys
-import numpy as np
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtMultimedia import QCameraInfo, QCamera, QCameraViewfinderSettings, QCameraImageCapture
-from PyQt5.QtMultimediaWidgets import QCameraViewfinderWidget, QVideoWidget
-from PyQt5.QtGui import QImage, QPixmap
-from pyqtgraph import PlotWidget, plot
-import pyqtgraph as pg
+from PyQt5.QtCore import QTimer, QThread, pyqtSignal
+from PyQt5.QtGui import QImage, QPixmap, QIcon
+from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QWidget
+from ui_mainwindow import Ui_Form
+import cv2
+import time
 
 class MainWindow(QMainWindow):
+    # class constructor
     def __init__(self):
+        # call QWidget constructor
         super().__init__()
+        self.ui = Ui_Form()
+        self.ui.setupUi(self)
 
-        # Create a layout to hold the video widget and graph widget
-        self.layout = QVBoxLayout()
+        # create a timer
+        self.timer = QTimer()
+        self.fps = 30
+        # set timer timeout callback function
 
-        # Create a video widget to display the camera feed
-        self.video_widget = QCameraViewfinderWidget()
-        self.layout.addWidget(self.video_widget)
+        self.timer.timeout.connect(self.viewCam)
+        # set control_bt callback clicked  function
+        self.ui.control_bt.clicked.connect(self.controlTimer)
 
-        # Create a plot widget to display the audio waveform
-        self.graph_widget = PlotWidget()
-        self.graph_widget.setRange(xRange=[0, 2*np.pi], yRange=[-1, 1])
-        self.graph_widget.showGrid(x=True, y=True)
-        self.layout.addWidget(self.graph_widget)
 
-        # Create a widget to hold the layout
-        self.widget = QWidget()
-        self.widget.setLayout(self.layout)
-        self.setCentralWidget(self.widget)
+    # view camera
+    def viewCam(self):
+        # read image in BGR format
+        ret, image = self.cap.read()
+        # convert image to RGB format
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # get image infos
+        height, width, channel = image.shape
+        step = channel * width
+        # create QImage from image
+        # cv2.imshow('dna', image)
+        qImg = QImage(image.data, width, height, step, QImage.Format_RGB888)
+        # show image in img_label
+        self.ui.image_label.setPixmap(QPixmap.fromImage(qImg))
 
-        # Find the first available camera
-        camera_info = QCameraInfo.availableCameras()
-        if camera_info:
-            self.camera = QCamera(camera_info[0])
-            viewfinder_settings = QCameraViewfinderSettings()
-            viewfinder_settings.setResolution(640, 480)
-            self.camera.setViewfinderSettings(viewfinder_settings)
-            self.camera.setViewfinder(self.video_widget)
+        #new code:
+        # calculate elapsed time
+        elapsed_time = time.time() - self.start_time
+        # calculate delay time
+        delay_time = max(1/self.fps - elapsed_time, 0)
+        # restart timer with adjusted interval
+        self.timer.start(int(delay_time * 1000))
 
-            # Create an image capture object to save snapshots
-            self.image_capture = QCameraImageCapture(self.camera)
-            self.camera.imageCaptureRequested.connect(self.image_capture.capture)
 
-            # Start the camera
-            self.camera.start()
+    # start/stop timer
+    def controlTimer(self):
+        # if timer is stopped
+        if not self.timer.isActive():
+            # create video capture
+            self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+            self.start_time = time.time()
+            # start timer
+            self.timer.start(0)
+            # update control_bt text
+            self.ui.control_bt.setText("Stop")
+        else:
+            # stop timer
+            self.timer.stop()
+            # release video capture
+            self.cap.release()
+            # update control_bt text
+            self.ui.control_bt.setText("Start")
+            self.ui.image_label.setText("Camera")
 
-            # Create a timer to update the audio waveform every 50 ms
-            self.timer = QTimer()
-            self.timer.timeout.connect(self.update_graph)
-            self.timer.start(50)
 
-    def update_graph(self):
-        # Generate some sample audio data
-        t = np.linspace(0, 2*np.pi, 1000)
-        data = np.sin(t)
-
-        # Clear the graph and plot the new data
-        self.graph_widget.clear()
-        self.graph_widget.plot(t, data, pen=pg.mkPen('b'))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
+
+    # create and show mainWindow
+    mainWindow = MainWindow()
+    mainWindow.show()
+
     sys.exit(app.exec_())
