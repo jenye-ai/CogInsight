@@ -1,11 +1,14 @@
 import sys
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal
-from PyQt5.QtGui import QImage, QPixmap, QIcon
-from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QWidget
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 from ui_mainwindow import Ui_Form
+
 import cv2
 import time
 
+import constants
+from pipeline import VideoPipeline
 class MainWindow(QMainWindow):
     # class constructor
     def __init__(self):
@@ -84,9 +87,56 @@ class MainWindow(QMainWindow):
             if self.video_writer is not None:
                 self.video_writer.release()
 
-            # update control_bt text
-            self.ui.control_bt.setText("Start")
-            self.ui.image_label.setText("Camera")
+            self.startLoadingScreen()
+
+    def startLoadingScreen(self):
+        self.loading = LoadingScreen()
+        self.setWindowTitle("Processing your video...")
+        self.loading.show()
+
+class LoadingScreen(QWidget):
+
+    def __init__(self):
+        super().__init__()
+
+        print('Thread is to be called here...')
+        self.load()
+        print('Thread has been called...')
+
+        # btn= QPushButton('Test button')
+        # vbox = QVBoxLayout()
+        # vbox.addWidget(btn)
+        # self.setLayout(vbox)
+        self.show()
+
+    def load(self):
+        # setup dialog
+        dialog = QDialog(self)
+        vbox = QVBoxLayout()
+        lbl = QLabel(self)
+        self.moviee = QMovie('loading.gif')
+        lbl.setMovie(self.moviee)
+        self.moviee.start()
+        vbox.addWidget(lbl)
+        dialog.setLayout(vbox)
+
+        # setup thread
+        thread = Worker()
+        thread.finished.connect(thread.deleteLater)
+        thread.finished.connect(dialog.close)
+        thread.finished.connect(dialog.deleteLater)
+        thread.start()
+
+        dialog.exec()
+
+
+class Worker(QThread):
+
+    def run(self):
+        pipeline = VideoPipeline(constants.OUTPUT_DIR, frameRate=constants.FRAME_RATE, prefix = constants.IMAGE_PREFIX, folder = constants.FRAME_DIR, processed_folder = constants.PROCESSED_DIR,)
+        report = pipeline.execute(constants.VIDEO_PATH)
+        print(report)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
