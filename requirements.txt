@@ -13,7 +13,6 @@ certifi==2022.12.7
 cffi==1.15.1
 charset-normalizer==2.1.1
 click==7.1.2
-colorama==0.4.6
 comm==0.1.2
 contourpy==1.0.7
 cvlib==0.2.7
@@ -111,8 +110,6 @@ pyrsistent==0.18.1
 python-dateutil==2.8.2
 python-dotenv==1.0.0
 pytz==2022.5
-pywin32==305
-pywinpty==2.0.10
 pyzmq==23.2.1
 qt5-applications==5.15.2.2.2
 qt5-tools==5.15.2.1.2
@@ -134,7 +131,6 @@ tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.1
 tensorflow==2.11.0
 tensorflow-estimator==2.11.0
-tensorflow-intel==2.11.0
 tensorflow-io-gcs-filesystem==0.29.0
 termcolor==2.2.0
 terminado==0.15.0
@@ -154,6 +150,5 @@ wcwidth==0.2.5
 webencodings==0.5.1
 Werkzeug==2.2.2
 wheel==0.38.4
-wincertstore==0.2
 wrapt==1.14.1
 zipp==3.8.1
