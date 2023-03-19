@@ -7,6 +7,7 @@ FRAME_DIR = "original_frames"
 PROCESSED_DIR =  "processed_frames"
 
 QUESTION_PATH = "C:/Code/462ModelPipeline/help.mp4"
+AUDIO_PATH = "tester.wav"
 
 
 PC_TYPE = "Windows" #Mac or Windows

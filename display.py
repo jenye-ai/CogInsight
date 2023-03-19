@@ -16,9 +16,49 @@ from matplotlib import cm, gridspec
 import random 
 import numpy as np
 import collections
+import pyaudio
+import scipy.io.wavfile as wav
 
 import constants
 from pipeline import VideoPipeline
+
+class AudioRecorder(QThread):
+    recording_finished = pyqtSignal()
+
+    def __init__(self, filename):
+        super().__init__()
+        self._stop = False
+        self.filename = filename
+
+    def run(self):
+        print("Recording Started!")
+        CHUNK = 1024
+        FORMAT = pyaudio.paInt16
+        CHANNELS = 1
+        RATE = 44100
+        p = pyaudio.PyAudio()
+        stream = p.open(format=FORMAT,
+                        channels=CHANNELS,
+                        rate=RATE,
+                        input=True,
+                        frames_per_buffer=CHUNK)
+        frames = []
+        while not self._stop:
+            data = stream.read(CHUNK)
+            frames.append(data)
+            print("Stuck")
+
+        print("Recording End!")
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
+        recording = np.frombuffer(b''.join(frames), dtype=np.int16)
+        wav.write(self.filename, RATE, recording)
+
+    def stop(self):
+        self._stop = True
+
+
 class MainWindow(QMainWindow):
     # class constructor
     def __init__(self):
@@ -32,7 +72,7 @@ class MainWindow(QMainWindow):
         self.fps = 30
 
         self.video = cv2.VideoCapture(constants.QUESTION_PATH)
-        
+
         self.timer.timeout.connect(self.viewCam)
 
         # set control_bt callback clicked  function
@@ -40,6 +80,9 @@ class MainWindow(QMainWindow):
 
         # initialize video writer
         self.video_writer = None
+
+        # initialize audio recorder
+        self.recorder = AudioRecorder(constants.AUDIO_PATH)
     
     def viewCam(self):
         vret, vimage = self.video.read()
@@ -102,6 +145,7 @@ class MainWindow(QMainWindow):
         # if timer is stopped
         if not self.timer.isActive():
             
+            
             # create video capture
             if constants.PC_TYPE == "Mac":
                 self.cap = cv2.VideoCapture(0)
@@ -117,6 +161,10 @@ class MainWindow(QMainWindow):
                 width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
                 height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                 self.video_writer = cv2.VideoWriter(filename, fourcc, self.fps, (width, height))
+
+            #self.audio_recorder.record()
+            self.recorder.start()
+
             # start timer
             self.timer.start(0)
             # update control_bt text
@@ -130,6 +178,8 @@ class MainWindow(QMainWindow):
             # release video writer
             if self.video_writer is not None:
                 self.video_writer.release()
+
+            self.recorder.stop()
 
             self.startLoadingScreen()
 
@@ -268,6 +318,9 @@ class Worker(QThread):
         report = pipeline.execute(constants.VIDEO_PATH)
         self.report.emit(report)
         self.finished.emit()
+    
+    def record_audio(self):
+        pass
         
 
 
