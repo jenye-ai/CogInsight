@@ -19,10 +19,7 @@ class Ui_Form(object):
         self.centralwidget.setObjectName("centralwidget")
         self.Interviewer = QtWidgets.QLabel(self.centralwidget)
         self.Interviewer.setGeometry(QtCore.QRect(40, 120, 711, 511))
-        self.Interviewer.setStyleSheet("border-style: outset;\n"
-"border-width: 2px;\n"
-"border-radius: 10px;\n"
-"border-color: black;")
+        self.Interviewer.setStyleSheet("")
         self.Interviewer.setText("")
         self.Interviewer.setObjectName("Interviewer")
         self.Transcript = QtWidgets.QLabel(self.centralwidget)
