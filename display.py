@@ -2,7 +2,8 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from ui_mainwindow import Ui_Form
+from PyQt5.QtMultimedia import *
+from ui_mainwindow1 import Ui_Form
 
 import cv2
 import time
@@ -29,19 +30,32 @@ class MainWindow(QMainWindow):
         # create a timer
         self.timer = QTimer()
         self.fps = 30
-        # set timer timeout callback function
+
+        self.video = cv2.VideoCapture(constants.QUESTION_PATH)
+        
         self.timer.timeout.connect(self.viewCam)
 
         # set control_bt callback clicked  function
-        self.ui.control_bt.clicked.connect(self.controlTimer)
+        self.ui.pushButton.clicked.connect(self.controlTimer)
 
         # initialize video writer
         self.video_writer = None
-
-    # view camera
+    
     def viewCam(self):
+        vret, vimage = self.video.read()
+        if vret:
+            # Convert frame to QImage
+            height, width, channel = vimage.shape
+            bytes_per_line = 3 * width
+            q_image = QImage(vimage.data, width, height, bytes_per_line, QImage.Format_RGB888)
+                
+            # Display QImage on label
+            pixmap = QPixmap.fromImage(q_image)
+            self.ui.Interviewer.setPixmap(pixmap)
+
         # read image in BGR format
         ret, image = self.cap.read()
+        
         # convert image to RGB format
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         # get image infos
@@ -68,10 +82,8 @@ class MainWindow(QMainWindow):
 
         qImg = qImg.scaled(scaled_width, scaled_height, Qt.KeepAspectRatio)
         self.ui.image_label.setPixmap(QPixmap.fromImage(qImg))
-        
 
         
-
         # write image to video
         if self.video_writer is not None:
             self.video_writer.write(cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
@@ -89,6 +101,7 @@ class MainWindow(QMainWindow):
     def controlTimer(self):
         # if timer is stopped
         if not self.timer.isActive():
+            
             # create video capture
             if constants.PC_TYPE == "Mac":
                 self.cap = cv2.VideoCapture(0)
@@ -104,11 +117,10 @@ class MainWindow(QMainWindow):
                 width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
                 height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                 self.video_writer = cv2.VideoWriter(filename, fourcc, self.fps, (width, height))
-
             # start timer
             self.timer.start(0)
             # update control_bt text
-            self.ui.control_bt.setText("Stop")
+            self.ui.pushButton.setText("Done!")
         else:
             # stop timer
             self.timer.stop()

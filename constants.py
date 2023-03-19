@@ -6,8 +6,10 @@ IMAGE_PREFIX = "image"
 FRAME_DIR = "original_frames"
 PROCESSED_DIR =  "processed_frames"
 
+QUESTION_PATH = "C:/Code/462ModelPipeline/help.mp4"
 
-PC_TYPE = "Mac" #Mac or Windows
+
+PC_TYPE = "Windows" #Mac or Windows
 
 #SmileCNN
 SMILECNN_PATH = "video_models/smileCNN_iter2.pt"
