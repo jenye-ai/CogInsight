@@ -86,6 +86,7 @@ ptyprocess==0.7.0
 pure-eval==0.2.2
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
+PyAudio==0.2.13
 pycparser==2.21
 Pygments==2.13.0
 pyparsing==3.0.9
@@ -121,6 +122,8 @@ scipy==1.10.1
 Send2Trash==1.8.0
 setuptools==65.6.3
 six==1.16.0
+sounddevice==0.4.6
+soundfile==0.12.1
 soupsieve==2.3.2.post1
 sqlparse==0.4.2
 stack-data==0.5.0

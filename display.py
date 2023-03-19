@@ -17,7 +17,6 @@ import random
 import numpy as np
 import collections
 import pyaudio
-import scipy.io.wavfile as wav
 import constants
 from pipeline import VideoPipeline
 import wave
@@ -25,54 +24,25 @@ import soundfile as sf
 import sounddevice as sd
 import queue
 
-# class AudioRecorder(QThread):
-#     recording_finished = pyqtSignal()
-
-#     def __init__(self, filename):
-#         super().__init__()
-#         self._stop = False
-#         self.filename = filename
-
-#     def run(self):
-#         print("Recording Started!")
-#         CHUNK = 1024
-#         FORMAT = pyaudio.paInt16
-#         CHANNELS = 1
-#         RATE = 44100
-#         p = pyaudio.PyAudio()
-#         stream = p.open(format=FORMAT,
-#                         channels=CHANNELS,
-#                         rate=RATE,
-#                         input=True,
-#                         frames_per_buffer=CHUNK)
-#         frames = []
-#         while not self._stop:
-#             data = stream.read(CHUNK)
-#             frames.append(data)
-
-#         print("Recording End!")
-#         stream.stop_stream()
-#         stream.close()
-#         p.terminate()
-#         recording = np.frombuffer(b''.join(frames), dtype=np.int16)
-#         wav.write(self.filename, RATE, recording)
-#         self.quit()
-
-#     def stop(self):
-#         self._stop = True
-
 class AudioRecorder(QThread):
     recording_finished = pyqtSignal()
 
-    def __init__(self, device=0, channels=2, samplerate=44100, filename=constants.ANSWER_PATH):
+    def __init__(self, samplerate=44100, filename=constants.ANSWER_PATH):
         super().__init__()
-        self.device = device
-        self.channels = channels
         self.fs = samplerate
         self.filename = filename
         self._stop = False
         self.duration = 0
         self.q = queue.Queue()
+        # Get a list of available input devices
+        #devices = sd.query_devices(kind='input')
+        # Get the names of the default input and output devices
+        self.device = sd.default.device[0]
+        device_info = sd.query_devices(self.device)
+        self.channels = device_info['max_input_channels']
+
+
+
 
     def stop(self):
         self._stop = True
@@ -109,15 +79,12 @@ class AudioPlayer(QThread):
         print("Player started!")
 
         wav_file = wave.open(constants.AUDIO_PATH, 'rb')
-        print("Did this even open")
         # Get the sample rate and channels from the file
         sample_rate = wav_file.getframerate()
         channels = wav_file.getnchannels()
-        print("But did this load")
 
         # Create an instance of PyAudio
         audio = pyaudio.PyAudio()
-        print("Loaded")
         # Open a stream to play the audio
         stream = audio.open(format=audio.get_format_from_width(wav_file.getsampwidth()),
                             channels=channels,
@@ -148,7 +115,6 @@ class MainWindow(QMainWindow):
 
         self.video = cv2.VideoCapture(constants.QUESTION_PATH)
         self.video_fps = self.video.get(cv2.CAP_PROP_FPS)
-        self.frame_dration = 1/self.video_fps
         self.prev_index = 0
         #self.player = MediaPlayer(constants.ANSWER_PATH)
 
