@@ -11,7 +11,7 @@ QUESTION_PATH = "interviewq.mp4"
 AUDIO_PATH = "interviewq.wav"
 
 
-PC_TYPE = "Mac" #Mac or Windows
+PC_TYPE = "Windows" #Mac or Windows
 
 #SmileCNN
 SMILECNN_PATH = "video_models/smileCNN_iter2.pt"

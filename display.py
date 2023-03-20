@@ -13,7 +13,6 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 from matplotlib import cm, gridspec
-import random 
 import numpy as np
 import collections
 import pyaudio
@@ -23,6 +22,7 @@ import wave
 import soundfile as sf
 import sounddevice as sd
 import queue
+import os
 
 class AudioRecorder(QThread):
     recording_finished = pyqtSignal()
@@ -49,6 +49,8 @@ class AudioRecorder(QThread):
 
     def run(self):
         # Make sure the file is opened before recording anything:
+        if os.path.exists(self.filename):
+            os.remove(self.filename)
         with sf.SoundFile(self.filename, mode='x', samplerate=self.fs,
                         channels=self.channels) as file:
             with sd.InputStream(samplerate=self.fs, device=self.device,

@@ -1,9 +1,11 @@
-from mtcnn import MTCNN
+#from mtcnn import MTCNN
+from facenet_pytorch import MTCNN
 from torchvision import transforms
 
 import cv2
 import cvlib as cv
 import torch
+import numpy as np
 
 class Preprocess():
     def __init__(self, prefix, count, images_path, processed_path):
@@ -11,20 +13,20 @@ class Preprocess():
         self.prefix = prefix
         self.images_path = images_path
         self.processed_path = processed_path
-        self.detector = MTCNN()
+        self.detector = MTCNN(keep_all=True, select_largest=True, post_process=False)
 
     def run(self):
         for i in range(1, self.count):
             img_path = self.images_path+self.prefix+f'{i}.jpg'
             image = cv2.imread(img_path)
-            image_with_markers = self.create_bounding_box(image) # method call
-            cropped_img = self.crop(image, image_with_markers[1])
+            cropped_img = self.create_bounding_box(image) # method call
             try:
                 cropped_img = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
             except: 
                 cropped_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             cropped_img = cv2.resize(cropped_img, (64, 64))
-            cv2.normalize(cropped_img, cropped_img, 0, 255, cv2.NORM_MINMAX)
+            cropped_img = (cropped_img - cropped_img.min()) / (cropped_img.max() - cropped_img.min()) * 255
+            cropped_img = cropped_img.astype(np.uint8)
             gimage = cv2.equalizeHist(cropped_img)
             cv2.imwrite(self.processed_path + self.prefix + f"{i}.jpg", gimage)
 
@@ -35,19 +37,21 @@ class Preprocess():
 
     def create_bounding_box(self, image):
 
-        faces = self.detector.detect_faces(image)
+        faces = self.detector(image)
         
         if len(faces) < 1:
             #Use another detector here 
             face, confidences = cv.detect_face(image)
             chosen = confidences.index(max(confidences))
             bounding_box = face[chosen]
+            cropped_image = self.crop(image, bounding_box[1])
 
         else:
-            bounding_box = faces[0]["box"][:4] # to obtain the only 1 image in our case
+            cropped_image = faces[0]
+            cropped_image = cropped_image.permute(1, 2, 0).detach().cpu().numpy()
 
 
-        return image, bounding_box
+        return image, cropped_image
 
 class VideoFrameData(torch.utils.data.Dataset):
     def __init__(self, prefix, count,  processed_path):
