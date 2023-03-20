@@ -2,7 +2,8 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from ui_mainwindow import Ui_Form
+from PyQt5.QtMultimedia import *
+from ui_mainwindow1 import Ui_Form
 
 import cv2
 import time
@@ -15,9 +16,91 @@ from matplotlib import cm, gridspec
 import random 
 import numpy as np
 import collections
-
+import pyaudio
 import constants
 from pipeline import VideoPipeline
+import wave
+import soundfile as sf
+import sounddevice as sd
+import queue
+
+class AudioRecorder(QThread):
+    recording_finished = pyqtSignal()
+
+    def __init__(self, samplerate=44100, filename=constants.ANSWER_PATH):
+        super().__init__()
+        self.fs = samplerate
+        self.filename = filename
+        self._stop = False
+        self.duration = 0
+        self.q = queue.Queue()
+        # Get a list of available input devices
+        #devices = sd.query_devices(kind='input')
+        # Get the names of the default input and output devices
+        self.device = sd.default.device[0]
+        device_info = sd.query_devices(self.device)
+        self.channels = device_info['max_input_channels']
+
+
+
+
+    def stop(self):
+        self._stop = True
+
+    def run(self):
+        # Make sure the file is opened before recording anything:
+        with sf.SoundFile(self.filename, mode='x', samplerate=self.fs,
+                        channels=self.channels) as file:
+            with sd.InputStream(samplerate=self.fs, device=self.device,
+                                channels=self.channels, callback=self.callback):
+                while not self._stop:
+                    file.write(self.q.get())
+
+    def callback(self,indata, frames, time, status):
+        """This is called (from a separate thread) for each audio block."""
+        if status:
+            print(status, file=sys.stderr)
+        self.q.put(indata.copy())
+
+    def stop(self):
+        self._stop = True
+
+
+
+class AudioPlayer(QThread):
+    player_finished = pyqtSignal()
+
+    def __init__(self, filename):
+        super().__init__()
+        self.filename = filename
+
+    def run(self):
+        # Replace the file path with the path to your WAV file
+        print("Player started!")
+
+        wav_file = wave.open(constants.AUDIO_PATH, 'rb')
+        # Get the sample rate and channels from the file
+        sample_rate = wav_file.getframerate()
+        channels = wav_file.getnchannels()
+
+        # Create an instance of PyAudio
+        audio = pyaudio.PyAudio()
+        # Open a stream to play the audio
+        stream = audio.open(format=audio.get_format_from_width(wav_file.getsampwidth()),
+                            channels=channels,
+                            rate=sample_rate,
+                            output=True)
+
+        # Read all the audio data and play it
+        data = wav_file.readframes(wav_file.getnframes())
+        stream.write(data)
+
+        # Cleanup
+        stream.stop_stream()
+        stream.close()
+        audio.terminate()
+        self.player_finished.emit()
+
 class MainWindow(QMainWindow):
     # class constructor
     def __init__(self):
@@ -29,19 +112,46 @@ class MainWindow(QMainWindow):
         # create a timer
         self.timer = QTimer()
         self.fps = 30
-        # set timer timeout callback function
+
+        self.video = cv2.VideoCapture(constants.QUESTION_PATH)
+        self.video_fps = self.video.get(cv2.CAP_PROP_FPS)
+        self.prev_index = 0
+        #self.player = MediaPlayer(constants.ANSWER_PATH)
+
         self.timer.timeout.connect(self.viewCam)
 
         # set control_bt callback clicked  function
-        self.ui.control_bt.clicked.connect(self.controlTimer)
+        self.ui.pushButton.clicked.connect(self.controlTimer)
 
+        # #Initialize audio player
+        # channels, self.sample_rate, sample_width, self.wav_file = self.read_audio(constants.AUDIO_PATH)
+
+        # # Set up audio player
+        # self.audio_player = pyaudio.PyAudio()
+        # self.audio_stream = self.audio_player.open(format=self.audio_player.get_format_from_width(sample_width), channels=channels, rate=self.sample_rate, output=True)
+        
         # initialize video writer
         self.video_writer = None
 
-    # view camera
+        # initialize audio recorder
+        self.recorder = AudioRecorder()
+        self.audio_player = AudioPlayer(constants.AUDIO_PATH)
+    
     def viewCam(self):
+        vret, vimage = self.video.read()
+        if vret:
+            # Convert frame to QImage
+            height, width, channel = vimage.shape
+            bytes_per_line = 3 * width
+            q_image = QImage(vimage.data, width, height, bytes_per_line, QImage.Format_RGB888)
+                
+            # Display QImage on label
+            pixmap = QPixmap.fromImage(q_image)
+            self.ui.Interviewer.setPixmap(pixmap)
+
         # read image in BGR format
         ret, image = self.cap.read()
+        
         # convert image to RGB format
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         # get image infos
@@ -68,15 +178,12 @@ class MainWindow(QMainWindow):
 
         qImg = qImg.scaled(scaled_width, scaled_height, Qt.KeepAspectRatio)
         self.ui.image_label.setPixmap(QPixmap.fromImage(qImg))
-        
 
         
-
         # write image to video
         if self.video_writer is not None:
             self.video_writer.write(cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
 
-        #new code:
         # calculate elapsed time
         elapsed_time = time.time() - self.start_time
         # calculate delay time
@@ -89,12 +196,13 @@ class MainWindow(QMainWindow):
     def controlTimer(self):
         # if timer is stopped
         if not self.timer.isActive():
+            
+            
             # create video capture
             if constants.PC_TYPE == "Mac":
                 self.cap = cv2.VideoCapture(0)
             else:
                 self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-                
             self.start_time = time.time()
 
             # initialize video writer
@@ -105,10 +213,14 @@ class MainWindow(QMainWindow):
                 height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                 self.video_writer = cv2.VideoWriter(filename, fourcc, self.fps, (width, height))
 
+            #self.audio_recorder.record()
+            self.recorder.start()
+            self.audio_player.start()
+
             # start timer
             self.timer.start(0)
             # update control_bt text
-            self.ui.control_bt.setText("Stop")
+            self.ui.pushButton.setText("Done!")
         else:
             # stop timer
             self.timer.stop()
@@ -119,7 +231,29 @@ class MainWindow(QMainWindow):
             if self.video_writer is not None:
                 self.video_writer.release()
 
+            self.recorder.stop()
+            
+
+            #self.wav_file.close()
+            #self.audio_stream.close()
+            self.audio_player.terminate()
+
             self.startLoadingScreen()
+
+
+    def read_audio(self,file_path):
+        # Open the audio file
+        wf = wave.open(file_path, 'rb')
+
+        # Get the audio file parameters
+        channels = wf.getnchannels()
+        sample_rate = wf.getframerate()
+        sample_width = wf.getsampwidth()
+        num_frames = wf.getnframes()
+        audio_frames = wf.readframes(num_frames)
+    
+        self.audio_samples = int(num_frames / sample_rate * self.video_fps)
+        return channels, sample_rate, sample_width, wf
 
     def startLoadingScreen(self):
         self.loading = LoadingScreen()
@@ -256,6 +390,10 @@ class Worker(QThread):
         report = pipeline.execute(constants.VIDEO_PATH)
         self.report.emit(report)
         self.finished.emit()
+        self.quit()
+    
+    def record_audio(self):
+        pass
         
 
 

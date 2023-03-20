@@ -1,10 +1,14 @@
 VIDEO_PATH = "tester.mp4"
+ANSWER_PATH = "tester.wav"
 OUTPUT_DIR = "results/"
 
 FRAME_RATE = 0.03333
 IMAGE_PREFIX = "image"
 FRAME_DIR = "original_frames"
 PROCESSED_DIR =  "processed_frames"
+
+QUESTION_PATH = "interviewq.mp4"
+AUDIO_PATH = "interviewq.wav"
 
 
 PC_TYPE = "Mac" #Mac or Windows
