@@ -14,16 +14,16 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(1339, 888)
+        Form.resize(1339, 825)
         self.centralwidget = QtWidgets.QWidget(Form)
         self.centralwidget.setObjectName("centralwidget")
         self.Interviewer = QtWidgets.QLabel(self.centralwidget)
-        self.Interviewer.setGeometry(QtCore.QRect(40, 170, 841, 661))
+        self.Interviewer.setGeometry(QtCore.QRect(40, 170, 841, 581))
         self.Interviewer.setStyleSheet("")
         self.Interviewer.setText("")
         self.Interviewer.setObjectName("Interviewer")
         self.Transcript = QtWidgets.QLabel(self.centralwidget)
-        self.Transcript.setGeometry(QtCore.QRect(910, 170, 401, 511))
+        self.Transcript.setGeometry(QtCore.QRect(910, 170, 401, 431))
         self.Transcript.setStyleSheet("background-color: rgb(255, 203, 230);")
         self.Transcript.setText("")
         self.Transcript.setObjectName("Transcript")
@@ -34,7 +34,7 @@ class Ui_Form(object):
         self.menu.setGeometry(QtCore.QRect(30, 20, 851, 131))
         self.menu.setObjectName("menu")
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton.setGeometry(QtCore.QRect(910, 700, 401, 131))
+        self.pushButton.setGeometry(QtCore.QRect(910, 620, 401, 131))
         self.pushButton.setStyleSheet("background-color: rgb(255, 203, 230);\n"
 "border-style: outset;\n"
 "border-width: 2px;\n"
