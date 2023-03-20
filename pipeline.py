@@ -6,9 +6,16 @@ import os
 import torch
 import pickle
 
+import pandas as pd
+import numpy as np
+from pyAudioAnalysis import audioBasicIO
+from pyAudioAnalysis import ShortTermFeatures
+
 from torch.utils.data import DataLoader
-from helpers import Preprocess, VideoFrameData
+from helpers import Preprocess, VideoFrameData, AudioExtractFeatures
 from models import SmileCNNSVM, EmotionDetector
+from pytorch_tabnet.tab_model import TabNetClassifier
+
 EXPRESSIONS = {0: 'neutral', 1:'happy', 2:'sad', 3:'surprise', 4:'fear', 5:'disgust', 6:'anger', 7:'contempt', 8:'none'}
 
 class VideoPipeline():
@@ -114,3 +121,35 @@ class VideoPipeline():
             cv2.imwrite(path, image)     # save frame as JPG file
         return hasFrames, image
     
+class AudioPipeline():
+    def __init__(self, dir, frameRate=0.5, prefix = "image", folder = "original_frames", processed_folder = "processed_frames"):
+        self.frameRate = frameRate
+        self.frame_path = dir+ folder + "/" 
+        self.processed_path = dir+ processed_folder + "/" 
+        self.valence = []
+
+        pass 
+
+    def execute(self, video_path):
+
+        #Step 0 load audio file
+        wav_file = constants.DEMO_AUDIO
+        sampling_rate, signal = audioBasicIO.read_audio_file(wav_file)
+        signal = audioBasicIO.stereo_to_mono(signal)
+
+        #Step 1 run feature extraction
+        feature_extractor = AudioExtractFeatures(wav_file)
+        mid_features, short_features, feature_names = feature_extractor.__compute_features__(signal, sampling_rate)
+        mid_features = np.transpose(mid_features)
+        features_df = pd.DataFrame(mid_features,
+                        columns=feature_names)
+        
+        #Step 2 append labels and writes to csv
+        feature_extractor.__append_labels__(features_df)
+
+        #Step 3 (TODO: process actual wav file not just sample)
+        audio_filename = constants.AUDIO_PATH
+        model = TabNetClassifier()
+        model.load_model(audio_filename)
+
+        
