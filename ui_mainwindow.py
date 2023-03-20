@@ -24,7 +24,8 @@ class Ui_Form(object):
         self.Interviewer.setObjectName("Interviewer")
         self.Transcript = QtWidgets.QLabel(self.centralwidget)
         self.Transcript.setGeometry(QtCore.QRect(910, 170, 401, 431))
-        self.Transcript.setStyleSheet("background-color: rgb(255, 203, 230);")
+        self.Transcript.setStyleSheet("background-color: rgb(255, 203, 230);\n"
+"padding: 2px;")
         self.Transcript.setText("")
         self.Transcript.setObjectName("Transcript")
         self.image_label = QtWidgets.QLabel(self.centralwidget)

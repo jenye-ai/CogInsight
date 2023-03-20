@@ -110,6 +110,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self.ui.Transcript.setAlignment(Qt.AlignTop | Qt.AlignLeft)
 
         # create a timer
         self.timer = QTimer()
@@ -138,8 +139,7 @@ class MainWindow(QMainWindow):
         # initialize audio recorder
         self.recorder = AudioRecorder()
         self.audio_player = AudioPlayer(constants.AUDIO_PATH)
-        # opening window in maximized size
-        #self.showMaximized()
+        
     
     def viewCam(self):
         vret, vimage = self.video.read()
@@ -212,8 +212,6 @@ class MainWindow(QMainWindow):
     def controlTimer(self):
         # if timer is stopped
         if not self.timer.isActive():
-            
-            
             # create video capture
             if constants.PC_TYPE == "Mac":
                 self.cap = cv2.VideoCapture(0)
@@ -229,9 +227,10 @@ class MainWindow(QMainWindow):
                 height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                 self.video_writer = cv2.VideoWriter(filename, fourcc, self.fps, (width, height))
 
-            #self.audio_recorder.record()
-            self.recorder.start()
             self.audio_player.start()
+            self.recorder.start()
+            self.ui.Transcript.setText("Q1: Hey, good to see you again! \nHow have you been feeling?")
+            
 
             # start timer
             self.timer.start(0)

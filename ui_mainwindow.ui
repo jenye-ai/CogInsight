@@ -40,7 +40,8 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(255, 203, 230);</string>
+     <string notr="true">background-color: rgb(255, 203, 230);
+padding: 2px;</string>
     </property>
     <property name="text">
      <string/>
