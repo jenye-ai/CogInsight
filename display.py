@@ -23,6 +23,7 @@ import soundfile as sf
 import sounddevice as sd
 import queue
 import os
+import time
 
 class AudioRecorder(QThread):
     recording_finished = pyqtSignal()
@@ -75,32 +76,31 @@ class AudioPlayer(QThread):
     def __init__(self, filename):
         super().__init__()
         self.filename = filename
-
-    def run(self):
-        # Replace the file path with the path to your WAV file
-        print("Player started!")
-
         wav_file = wave.open(constants.AUDIO_PATH, 'rb')
         # Get the sample rate and channels from the file
         sample_rate = wav_file.getframerate()
         channels = wav_file.getnchannels()
 
         # Create an instance of PyAudio
-        audio = pyaudio.PyAudio()
+        self.audio = pyaudio.PyAudio()
         # Open a stream to play the audio
-        stream = audio.open(format=audio.get_format_from_width(wav_file.getsampwidth()),
+        self.stream = self.audio.open(format=self.audio.get_format_from_width(wav_file.getsampwidth()),
                             channels=channels,
                             rate=sample_rate,
                             output=True)
 
         # Read all the audio data and play it
-        data = wav_file.readframes(wav_file.getnframes())
-        stream.write(data)
+        self.data = wav_file.readframes(wav_file.getnframes())
+
+    def run(self):
+        # Replace the file path with the path to your WAV file
+        print("Player started!")
+        self.stream.write(self.data)
 
         # Cleanup
-        stream.stop_stream()
-        stream.close()
-        audio.terminate()
+        self.stream.stop_stream()
+        self.stream.close()
+        self.audio.terminate()
         self.player_finished.emit()
 
 class MainWindow(QMainWindow):
@@ -111,6 +111,15 @@ class MainWindow(QMainWindow):
         self.ui = Ui_Form()
         self.ui.setupUi(self)
         self.ui.Transcript.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        # Load the image from a file
+        pixmap = QPixmap(constants.MENU_PATH)
+        # Get the size of the QLabel
+        label_size = self.ui.menu.size()
+        # Resize the pixmap to fit the QLabel
+        pixmap = pixmap.scaled(label_size, aspectRatioMode=Qt.KeepAspectRatio, transformMode=Qt.SmoothTransformation)
+
+        # Set the pixmap of the QLabel
+        self.ui.menu.setPixmap(pixmap)
 
         # create a timer
         self.timer = QTimer()
@@ -220,16 +229,20 @@ class MainWindow(QMainWindow):
             self.start_time = time.time()
 
             # initialize video writer
-            filename, _ = QFileDialog.getSaveFileName(self, "Save video", ".", "MP4 files (*.mp4)")
-            if filename:
-                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-                width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-                height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                self.video_writer = cv2.VideoWriter(filename, fourcc, self.fps, (width, height))
+            #filename, _ = QFileDialog.getSaveFileName(self, "Save video", ".", "MP4 files (*.mp4)")
+            #if filename:
+            if os.path.exists(constants.VIDEO_PATH):
+                os.remove(constants.VIDEO_PATH)
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            self.video_writer = cv2.VideoWriter(constants.VIDEO_PATH, fourcc, self.fps, (width, height))
 
             self.audio_player.start()
+            time.sleep(0.5)
+            
             self.recorder.start()
-            self.ui.Transcript.setText("Q1: Hey, good to see you again! \nHow have you been feeling?")
+            self.ui.Transcript.setText("TRANSCRIPT\n \nQ1: Hey, good to see you again! \nHow have you been feeling?")
             
 
             # start timer

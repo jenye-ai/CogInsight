@@ -10,6 +10,7 @@ PROCESSED_DIR =  "processed_frames"
 QUESTION_PATH = "interviewq.mp4"
 AUDIO_PATH = "interviewq.wav"
 
+MENU_PATH = "menu_bar.jpg"
 
 PC_TYPE = "Windows" #Mac or Windows
 
