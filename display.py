@@ -142,11 +142,23 @@ class MainWindow(QMainWindow):
     def viewCam(self):
         vret, vimage = self.video.read()
         if vret:
-            # Convert frame to QImage
             height, width, channel = vimage.shape
-            bytes_per_line = 3 * width
-            q_image = QImage(vimage.data, width, height, bytes_per_line, QImage.Format_RGB888)
-                
+            step = channel * width
+            q_image = QImage(vimage.data, width, height, step, QImage.Format_BGR888)
+            label_width = self.ui.Interviewer.width()
+            label_height = self.ui.Interviewer.height()
+            img_ratio = width / height
+            label_ratio = label_width / label_height
+
+            if img_ratio > label_ratio:
+                # image is wider than label, scale by width
+                scaled_width = label_width
+                scaled_height = int(label_width / img_ratio)
+            else:
+                # image is taller than label, scale by height
+                scaled_height = label_height
+                scaled_width = int(label_height * img_ratio)
+            q_image = q_image.scaled(scaled_width, scaled_height, Qt.KeepAspectRatio)
             # Display QImage on label
             pixmap = QPixmap.fromImage(q_image)
             self.ui.Interviewer.setPixmap(pixmap)
