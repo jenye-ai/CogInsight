@@ -3,7 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtMultimedia import *
-from ui_mainwindow1 import Ui_Form
+from ui_mainwindow import Ui_Form
 
 import cv2
 import time
@@ -138,6 +138,8 @@ class MainWindow(QMainWindow):
         # initialize audio recorder
         self.recorder = AudioRecorder()
         self.audio_player = AudioPlayer(constants.AUDIO_PATH)
+        # opening window in maximized size
+        #self.showMaximized()
     
     def viewCam(self):
         vret, vimage = self.video.read()

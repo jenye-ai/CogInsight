@@ -14,19 +14,36 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(800, 600)
+        Form.resize(1339, 888)
         self.centralwidget = QtWidgets.QWidget(Form)
         self.centralwidget.setObjectName("centralwidget")
+        self.Interviewer = QtWidgets.QLabel(self.centralwidget)
+        self.Interviewer.setGeometry(QtCore.QRect(40, 170, 841, 661))
+        self.Interviewer.setStyleSheet("")
+        self.Interviewer.setText("")
+        self.Interviewer.setObjectName("Interviewer")
+        self.Transcript = QtWidgets.QLabel(self.centralwidget)
+        self.Transcript.setGeometry(QtCore.QRect(910, 170, 401, 511))
+        self.Transcript.setStyleSheet("background-color: rgb(255, 203, 230);")
+        self.Transcript.setText("")
+        self.Transcript.setObjectName("Transcript")
         self.image_label = QtWidgets.QLabel(self.centralwidget)
-        self.image_label.setGeometry(QtCore.QRect(0, 0, 801, 501))
-        self.image_label.setText("")
+        self.image_label.setGeometry(QtCore.QRect(910, 20, 401, 131))
         self.image_label.setObjectName("image_label")
-        self.control_bt = QtWidgets.QPushButton(self.centralwidget)
-        self.control_bt.setGeometry(QtCore.QRect(20, 500, 751, 41))
-        self.control_bt.setObjectName("control_bt")
+        self.menu = QtWidgets.QLabel(self.centralwidget)
+        self.menu.setGeometry(QtCore.QRect(30, 20, 851, 131))
+        self.menu.setObjectName("menu")
+        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton.setGeometry(QtCore.QRect(910, 700, 401, 131))
+        self.pushButton.setStyleSheet("background-color: rgb(255, 203, 230);\n"
+"border-style: outset;\n"
+"border-width: 2px;\n"
+"border-radius: 10px;\n"
+"border-color: white;")
+        self.pushButton.setObjectName("pushButton")
         Form.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(Form)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1339, 22))
         self.menubar.setObjectName("menubar")
         Form.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(Form)
@@ -39,4 +56,6 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "MainWindow"))
-        self.control_bt.setText(_translate("Form", "Record"))
+        self.image_label.setText(_translate("Form", "Human Video"))
+        self.menu.setText(_translate("Form", "Menu bar"))
+        self.pushButton.setText(_translate("Form", "Ready to Speak"))

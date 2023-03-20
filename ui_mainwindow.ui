@@ -6,38 +6,90 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1339</width>
+    <height>888</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="image_label">
+   <widget class="QLabel" name="Interviewer">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>801</width>
-      <height>501</height>
+      <x>40</x>
+      <y>170</y>
+      <width>841</width>
+      <height>661</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
     </property>
     <property name="text">
      <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="control_bt">
+   <widget class="QLabel" name="Transcript">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>500</y>
-      <width>751</width>
-      <height>41</height>
+      <x>910</x>
+      <y>170</y>
+      <width>401</width>
+      <height>511</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 203, 230);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="image_label">
+    <property name="geometry">
+     <rect>
+      <x>910</x>
+      <y>20</y>
+      <width>401</width>
+      <height>131</height>
      </rect>
     </property>
     <property name="text">
-     <string>Record</string>
+     <string>Human Video</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="menu">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>20</y>
+      <width>851</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Menu bar</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>910</x>
+      <y>700</y>
+      <width>401</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 203, 230);
+border-style: outset;
+border-width: 2px;
+border-radius: 10px;
+border-color: white;</string>
+    </property>
+    <property name="text">
+     <string>Ready to Speak</string>
     </property>
    </widget>
   </widget>
@@ -46,7 +98,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1339</width>
      <height>22</height>
     </rect>
    </property>
