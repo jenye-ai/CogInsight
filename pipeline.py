@@ -14,7 +14,9 @@ from pyAudioAnalysis import ShortTermFeatures
 from torch.utils.data import DataLoader
 from helpers import Preprocess, VideoFrameData, AudioExtractFeatures
 from models import SmileCNNSVM, EmotionDetector
+
 from pytorch_tabnet.tab_model import TabNetClassifier
+from sklearn.metrics import accuracy_score
 
 EXPRESSIONS = {0: 'neutral', 1:'happy', 2:'sad', 3:'surprise', 4:'fear', 5:'disgust', 6:'anger', 7:'contempt', 8:'none'}
 
@@ -126,12 +128,11 @@ class AudioPipeline():
         self.frameRate = frameRate
         self.frame_path = dir+ folder + "/" 
         self.processed_path = dir+ processed_folder + "/" 
-        self.valence = []
+        self.audio_score = []
 
         pass 
 
-    def execute(self, video_path):
-
+    def execute(self):
         #Step 0 load audio file
         wav_file = constants.DEMO_AUDIO
         sampling_rate, signal = audioBasicIO.read_audio_file(wav_file)
@@ -147,9 +148,31 @@ class AudioPipeline():
         #Step 2 append labels and writes to csv
         feature_extractor.__append_labels__(features_df)
 
-        #Step 3 (TODO: process actual wav file not just sample)
+        #Step 3 load in audio network
         audio_filename = constants.AUDIO_PATH
         model = TabNetClassifier()
         model.load_model(audio_filename)
+
+        #Step 4 load in pre-computed features (demo sample)
+        path = constants.PRECOMPUTED_FEATURES_PATH
+        df = pd.read_csv(path)
+        df = df.drop(columns=["Unnamed: 0"])
+        df = df.drop(columns=['PHQ_8NoInterest', 'PHQ_8Depressed', 'PHQ_8Sleep', 'PHQ_8Tired', 'PHQ_8Appetite', 'PHQ_8Failure', 'PHQ_8Concentrating', 'PHQ_8Moving', 'PHQ_8Total'])
+        X_test = df[df.columns.difference(['label'])].values
+        y_test = df['label'].values
+        preds = model.predict(X_test)
+        test_acc = accuracy_score(preds, y_test)
+
+        # This is the score
+        total = sum(preds) / len(preds)
+        print(total)
+        print(f"The test accuracy for {path} is {test_acc}")
+
+        #Step 5 final output
+        self.audio_score.append(total)
+
+
+
+
 
         
