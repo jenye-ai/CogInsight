@@ -4,6 +4,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtMultimedia import *
 from ui_mainwindow import Ui_Form
+from reports import Ui_Report
 
 import cv2
 import time
@@ -14,7 +15,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 import matplotlib.pyplot as plt
 from matplotlib import cm, gridspec
 import numpy as np
-import collections
+
 import pyaudio
 import constants
 from pipeline import VideoPipeline
@@ -35,15 +36,11 @@ class AudioRecorder(QThread):
         self._stop = False
         self.duration = 0
         self.q = queue.Queue()
-        # Get a list of available input devices
-        #devices = sd.query_devices(kind='input')
+
         # Get the names of the default input and output devices
         self.device = sd.default.device[0]
         device_info = sd.query_devices(self.device)
         self.channels = device_info['max_input_channels']
-
-
-
 
     def stop(self):
         self._stop = True
@@ -135,19 +132,14 @@ class MainWindow(QMainWindow):
         # set control_bt callback clicked  function
         self.ui.pushButton.clicked.connect(self.controlTimer)
 
-        # #Initialize audio player
-        # channels, self.sample_rate, sample_width, self.wav_file = self.read_audio(constants.AUDIO_PATH)
-
-        # # Set up audio player
-        # self.audio_player = pyaudio.PyAudio()
-        # self.audio_stream = self.audio_player.open(format=self.audio_player.get_format_from_width(sample_width), channels=channels, rate=self.sample_rate, output=True)
-        
         # initialize video writer
         self.video_writer = None
 
         # initialize audio recorder
         self.recorder = AudioRecorder()
         self.audio_player = AudioPlayer(constants.AUDIO_PATH)
+
+        self.metrics = {}
         
     
     def viewCam(self):
@@ -229,8 +221,6 @@ class MainWindow(QMainWindow):
             self.start_time = time.time()
 
             # initialize video writer
-            #filename, _ = QFileDialog.getSaveFileName(self, "Save video", ".", "MP4 files (*.mp4)")
-            #if filename:
             if os.path.exists(constants.VIDEO_PATH):
                 os.remove(constants.VIDEO_PATH)
             fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -239,7 +229,6 @@ class MainWindow(QMainWindow):
             self.video_writer = cv2.VideoWriter(constants.VIDEO_PATH, fourcc, self.fps, (width, height))
 
             self.audio_player.start()
-            time.sleep(0.5)
             
             self.recorder.start()
             self.ui.Transcript.setText("TRANSCRIPT\n \nQ1: Hey, good to see you again! \nHow have you been feeling?")
@@ -260,42 +249,93 @@ class MainWindow(QMainWindow):
                 self.video_writer.release()
 
             self.recorder.stop()
-            
 
-            #self.wav_file.close()
-            #self.audio_stream.close()
             self.audio_player.terminate()
 
             self.startLoadingScreen()
 
-
-    def read_audio(self,file_path):
-        # Open the audio file
-        wf = wave.open(file_path, 'rb')
-
-        # Get the audio file parameters
-        channels = wf.getnchannels()
-        sample_rate = wf.getframerate()
-        sample_width = wf.getsampwidth()
-        num_frames = wf.getnframes()
-        audio_frames = wf.readframes(num_frames)
-    
-        self.audio_samples = int(num_frames / sample_rate * self.video_fps)
-        return channels, sample_rate, sample_width, wf
-
     def startLoadingScreen(self):
-        self.loading = LoadingScreen()
-        self.setWindowTitle("Processing your video...")
+        # self.loading = LoadingScreen()
+        # self.loading.metrics_done.connect(self.update_report)
+        # self.setWindowTitle("Processing your video...")
+        # self.loading.finished.connect(self.startReportScreen)
+        # self.loading.show()
+        self.loading = ReportScreen(self.metrics)
         self.loading.show()
+        
 
-class MplCanvas(FigureCanvas):
+    def startReportScreen(self):
+        self.report = ReportScreen(self.metrics)
+        self.report.show()
 
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-        super(MplCanvas, self).__init__(fig)
+    def update_report(self, report_data):
+        self.metrics = report_data
+
+
+class ReportScreen(QMainWindow):
+    # class constructor
+    def __init__(self, metrics):
+        # call QWidget constructor
+        super().__init__()
+        self.ui = Ui_Report()
+        self.ui.setupUi(self)
+        self.metrics = metrics
+        self.ui.title.setAlignment(Qt.AlignTop | Qt.AlignCenter)
+        self.ui.b1.setValue(50)
+        self.ui.b1.setStyleSheet('''
+            QProgressBar {
+                border-radius: 10px;
+                text-align: right;
+                color: red;
+            }
+            QProgressBar::chunk {
+                background-color: pink;
+                border-radius: 10px;
+            }
+        ''')  
+        
+        self.ui.b2.setValue(75)
+        self.ui.b2.setStyleSheet('''
+            QProgressBar {
+                border-radius: 10px;
+                text-align: right;
+                color: red;
+            }
+            QProgressBar::chunk {
+                background-color:#2c7EBC;
+                border-radius: 10px;
+            }
+        ''')
+
+        self.ui.b3.setValue(50)
+        self.ui.b3.setStyleSheet('''
+            QProgressBar {
+                border-radius: 10px;
+                text-align: right;
+                color: green;
+            }
+            QProgressBar::chunk {
+                background-color: purple;
+                border-radius: 10px;
+            }
+        ''')
+        
+        self.ui.b4.setValue(20)
+        self.ui.b4.setStyleSheet('''
+            QProgressBar {
+                border-radius: 10px;
+                text-align: right;
+                color: green;
+            }
+            QProgressBar::chunk {
+                background-color: #57477D;
+                border-radius: 10px;
+            }
+        ''')
 
 class LoadingScreen(QWidget):
+    metrics_done = pyqtSignal(object)
+    finished = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -306,55 +346,10 @@ class LoadingScreen(QWidget):
         self.load()
         print('Thread has been called...')
 
-        self.figure = plt.figure()
-  
-        # this is the Canvas Widget that
-        # displays the 'figure'it takes the
-        # 'figure' instance as a parameter to __init__
-        self.canvas = FigureCanvas(self.figure)
-  
-        # this is the Navigation widget
-        # it takes the Canvas widget and a parent
-        self.toolbar = NavigationToolbar(self.canvas, self)
-
-        #### PLOTTING DONE HERE #####
-        # random data
-        print(self.metrics)
-        # clearing old figure
-        self.figure.clear() 
-        # create an axis
-        a0 = self.figure.add_subplot(2,2,2)
-        a1 = self.figure.add_subplot(2,2,4)
-        a2 = self.figure.add_subplot(121, polar=True)
-
-        #a0 is the number of smiles
-        self.draw_bar(self.metrics["num_smiles"],self.metrics["num_smiles"]*2, a0)
-        a0.set_title('Number of Smiles')
-        #a1 is the time spent smiling
-        self.draw_bar(self.metrics["time_smiling"],self.metrics["time"], a1)
-        a1.set_title('Time Spent Smiling')
-        #a2 is the radar plot
-        self.draw_radar(self.metrics, a2)
-
-        # refresh canvas
-        self.canvas.draw()
-
-        #####
-  
-        # creating a Vertical Box layout
-        layout = QVBoxLayout()
-          
-        # adding tool bar to the layout
-        layout.addWidget(self.toolbar)
-          
-        # adding canvas to the layout
-        layout.addWidget(self.canvas)
-          
-          
-        # setting layout to the main window
-        self.setWindowTitle("Results")
-        self.setLayout(layout)
-  
+        self.setWindowTitle("Results Finished! ...")
+        self.metrics_done.emit(self.metrics)
+        self.finished.emit()
+        self.close()
 
     def load(self):
         # setup dialog
@@ -381,30 +376,6 @@ class LoadingScreen(QWidget):
     def update_report(self, report_data):
         self.metrics = report_data
 
-    def draw_bar(self,level,max_level, ax):
-        ax.bar([0], [max_level], width=1, edgecolor='black', fill=False)
-        ax.bar([0], [level], width=1, color='blue')
-        ax.set_xlim([0, max_level])
-        ax.set_ylim([0, max_level])
-        ax.tick_params(labelbottom=False)    
-        ax.set_xticks([])
-        return ax
-    
-    def draw_radar(self,report, ax):
-        categories = ['neutral', 'happy','sad', 'surprise', 'fear', 'disgust', 'anger', 'contempt', 'none']
-        categories = [*categories, categories[0]]
-        count = collections.Counter(report["emotion"])
-        for i in range(0,9):
-            if i not in count.keys():
-                count[i] = 0
-        web = [count[i] for i in sorted(count.keys())]
-        web = [*web, web[0]]
-
-        label_loc = np.linspace(start=0, stop=2 * np.pi, num=len(web))
-
-        ax.plot(label_loc, web, label='Emotions')
-        ax.set_title('Distribution of emotions')
-        ax.set_thetagrids(np.degrees(label_loc), labels=categories)
 
     
         
