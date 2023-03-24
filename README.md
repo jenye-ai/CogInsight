@@ -18,3 +18,5 @@ Make sure that in constants.py, the name of the file you save to record you vide
 Make sure to also specify your OS type. (Mac vs Windows)
 
 Also make sure that your output dir matches the constant file OUTPUT_DIR variable
+
+To run the program, use ```python3 display.py```
