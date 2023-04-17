@@ -1,4 +1,5 @@
 import sys
+import cv2
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -7,13 +8,18 @@ from display import MainWindow2
 
 #importing constants from other file
 import mod_constant
+import constants
+import time
 
 image_path = "images/"
 filler = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vel nisl justo. Nunc vitae sem sed."
 class MainWindow(QMainWindow):
     # class constructor
+    finished_mod1 = pyqtSignal()
+    finished_mod2 = pyqtSignal()
     def __init__(self):
         super(MainWindow, self).__init__()
+        print("start!")
         self.setWindowTitle('CogInsight')
         self.setFixedWidth(1350)
         self.setFixedHeight(900)
@@ -25,6 +31,8 @@ class MainWindow(QMainWindow):
         self.timer_mod2_2 = QTimer(self)
         self.timer_mod2_3 = QTimer(self)
         
+        self.video_recorder = VideoRecorder(mod_constant.MOD1_VIDEO)  
+        self.video_recorder2 = VideoRecorder(mod_constant.MOD2_VIDEO)
 
         self.setStyleSheet("background-color: white")
         self.init_ui()  
@@ -292,6 +300,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(mainWidget)
         if not self.timer_mod1.isActive():
             self.timer_mod1.start(mod_constant.TIME1)
+            self.video_recorder.start()
      
         p1.clicked.connect(self.act1_UI_p1)
         p2.clicked.connect(self.act1_UI_p2)
@@ -467,6 +476,9 @@ class MainWindow(QMainWindow):
         
     def act1_UI_mc1(self):
     # The spacing of the 
+        self.finished_mod1.connect(self.video_recorder.stopRecording)
+        self.finished_mod1.emit()
+
         self.timer_mod1.stop()
         self.timer_mod1.deleteLater()
 
@@ -637,6 +649,7 @@ class MainWindow(QMainWindow):
         moduleStartButton.clicked.connect(self.act2_UI_p1_first)
     
     def act2_UI_p1_first(self):
+        self.video_recorder2.start()
         self.timer_mod2_1.timeout.connect(self.act2_UI_p1_second)
         self.timer_mod2_1.start(1500)
         navbar = self.create_navBar()
@@ -677,7 +690,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(mainWidget)
         
     def act2_UI_p1_third(self):
-        self.timer_mod2_1.start(100)
+        self.timer_mod2_1.start(1000)
         self.timer_mod2_1.timeout.connect(self.act2_UI_p1_fourth)
         navBar = self.create_navBar()
         faceRow = self.create_mod2_rows(mod_constant.LEFT1_SHAPE, mod_constant.RIGHT1_IMAGE)
@@ -832,6 +845,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(mainWidget)   
         
     def act2_UI_p2_end(self):
+        
         self.timer_mod2_2.deleteLater()
         navbar = self.create_navBar()
         faceRow = self.create_mod2_rows(mod_constant.LEFT2_IMAGE, mod_constant.RIGHT2_IMAGE)
@@ -1001,6 +1015,8 @@ class MainWindow(QMainWindow):
     def act3_UI_intro(self):
         #Creating all the widgets necessary in the page
         #Title of the module
+        self.finished_mod2.connect(self.video_recorder2.stopRecording)
+        self.finished_mod2.emit()
         moduleTitleWidget = QLabel("Module 3")
         moduleTitleWidget.setFont(QFont('Times font',20))
         moduleTitleWidget.setAlignment(Qt.AlignVCenter)
@@ -1081,7 +1097,62 @@ class MainWindow(QMainWindow):
         self.window2.animate(self.geometry().getRect(), self.window2.geometry().getRect())
         self.close()
 
+class VideoRecorder(QThread):
+    def __init__(self, filename, thread1=None, fps=30):
+        super().__init__()
+        self.recording = False
+        self.filename = filename
+        self.video_writer = None
+        self.fps=30
+        self.width = None
+        self.height = None
+        # self.thread1 = thread1
+        # self.thread1.finished_mod1.connect(self.stopRecording)
+    
+    def get_filname(self, filename):
+        self.filename = filename
+
+    def startRecording(self):
+        if not self.recording:
+            self.video_writer = cv2.VideoWriter(self.filename, cv2.VideoWriter_fourcc(*'mp4v'), self.fps, (self.width, self.height))
+            self.recording = True
+            print("recording started!")
+
+    def stopRecording(self):
+        if self.recording:
+            self.video_writer.release()
+            self.recording = False
+            print("saved!")
+
+    def recordFrame(self, frame):
+        if self.recording:
+             self.video_writer.write(frame)
+    
+    def run(self):
+        print("why no print")
+        if constants.PC_TYPE == "Mac":
+            self.cap = cv2.VideoCapture(0)
+        else:
+            self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        print("it work")
         
+        self.width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.startRecording()
+        frame_duration = 1 / self.fps
+        while self.recording:
+            start_time = time.time()
+            ret, frame = self.cap.read()
+            if not ret:
+                break
+            self.recordFrame(frame)
+            elapsed_time = time.time() - start_time
+            remaining_time = frame_duration - elapsed_time
+            if remaining_time > 0:
+                time.sleep(remaining_time)
+        self.quit()
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     

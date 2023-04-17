@@ -1,5 +1,5 @@
-VIDEO_PATH = "tester.mp4"
-ANSWER_PATH = "tester.wav"
+VIDEO_PATH = "module3.mp4"
+ANSWER_PATH = "module3.wav"
 OUTPUT_DIR = "results/"
 
 FRAME_RATE = 0.03333

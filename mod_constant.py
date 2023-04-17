@@ -10,7 +10,7 @@ MOD2_PRE_AMBLE = "In this section, you will be shown a blank screen. Focus on th
 
 MOD3_PRE_AMBLE = "In this section, you will be having a conversation with our interviewer. They will ask you questions about how the last few weeks have been. Don't worry, we won't record your responses, just answer like you're talking to a friend. "
 
-TIME1 = 5000
+TIME1 = 20000
 #Page 1
 ARTICLE1_IMAGE = IMAGE_DIR + "article1.png"
 ARTICLE1_HEADLINE = "Montreal man, 19, charged with 2nd degree murder in stabbing deaths of 3 family members"
@@ -89,4 +89,7 @@ SHAPE3 = IMAGE_DIR2 + "square.png"
 LEFT1_SHAPE = IMAGE_DIR2 + "happy1_shape.png"
 LEFT2_SHAPE = IMAGE_DIR2 + "happy2_shape.png"
 RIGHT3_SHAPE = IMAGE_DIR2 + "happy3_shape.png"
+
+MOD1_VIDEO = "module1.mp4"
+MOD2_VIDEO = "module2.mp4"
 
