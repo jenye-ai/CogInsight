@@ -266,11 +266,13 @@ class MainWindow2(QMainWindow):
         # self.loading.show()
         self.loading = ReportScreen(self.metrics)
         self.loading.show()
+        self.close()
         
 
     def startReportScreen(self):
         self.report = ReportScreen(self.metrics)
         self.report.show()
+        self.close()
 
     def update_report(self, report_data):
         self.metrics = report_data
