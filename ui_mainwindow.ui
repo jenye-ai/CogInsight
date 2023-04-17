@@ -18,9 +18,9 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>170</y>
-      <width>841</width>
-      <height>581</height>
+      <y>140</y>
+      <width>981</width>
+      <height>611</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -33,10 +33,10 @@
    <widget class="QLabel" name="Transcript">
     <property name="geometry">
      <rect>
-      <x>910</x>
-      <y>170</y>
-      <width>401</width>
-      <height>431</height>
+      <x>1050</x>
+      <y>300</y>
+      <width>261</width>
+      <height>341</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -50,9 +50,9 @@ padding: 2px;</string>
    <widget class="QLabel" name="image_label">
     <property name="geometry">
      <rect>
-      <x>910</x>
-      <y>20</y>
-      <width>401</width>
+      <x>1050</x>
+      <y>140</y>
+      <width>261</width>
       <height>131</height>
      </rect>
     </property>
@@ -60,25 +60,12 @@ padding: 2px;</string>
      <string>Human Video</string>
     </property>
    </widget>
-   <widget class="QLabel" name="menu">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>20</y>
-      <width>851</width>
-      <height>131</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Menu bar</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>910</x>
-      <y>620</y>
-      <width>401</width>
+      <x>1050</x>
+      <y>650</y>
+      <width>261</width>
       <height>131</height>
      </rect>
     </property>

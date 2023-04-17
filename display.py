@@ -100,23 +100,24 @@ class AudioPlayer(QThread):
         self.audio.terminate()
         self.player_finished.emit()
 
-class MainWindow(QMainWindow):
+class MainWindow2(QMainWindow):
     # class constructor
     def __init__(self):
         # call QWidget constructor
         super().__init__()
         self.ui = Ui_Form()
         self.ui.setupUi(self)
-        self.ui.Transcript.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        # Load the image from a file
-        pixmap = QPixmap(constants.MENU_PATH)
-        # Get the size of the QLabel
-        label_size = self.ui.menu.size()
-        # Resize the pixmap to fit the QLabel
-        pixmap = pixmap.scaled(label_size, aspectRatioMode=Qt.KeepAspectRatio, transformMode=Qt.SmoothTransformation)
 
-        # Set the pixmap of the QLabel
-        self.ui.menu.setPixmap(pixmap)
+        navBar = self.create_navBar()
+
+        mainLayout = QVBoxLayout()
+
+        mainLayout.addWidget(navBar)
+        mainLayout.setAlignment(Qt.AlignTop | Qt.AlignRight)
+
+        self.ui.centralwidget.setLayout(mainLayout)
+
+        self.ui.Transcript.setAlignment(Qt.AlignTop | Qt.AlignLeft)
 
         # create a timer
         self.timer = QTimer()
@@ -140,6 +141,7 @@ class MainWindow(QMainWindow):
         self.audio_player = AudioPlayer(constants.AUDIO_PATH)
 
         self.metrics = {}
+
         
     
     def viewCam(self):
@@ -195,6 +197,7 @@ class MainWindow(QMainWindow):
 
         qImg = qImg.scaled(scaled_width, scaled_height, Qt.KeepAspectRatio)
         self.ui.image_label.setPixmap(QPixmap.fromImage(qImg))
+        self.ui.image_label.setAlignment(Qt.AlignCenter)
 
         
         # write image to video
@@ -231,7 +234,8 @@ class MainWindow(QMainWindow):
             self.audio_player.start()
             
             self.recorder.start()
-            self.ui.Transcript.setText("TRANSCRIPT\n \nQ1: Hey, good to see you again! \nHow have you been feeling?")
+            self.ui.Transcript.setWordWrap(True)
+            self.ui.Transcript.setText("TRANSCRIPT\n \nQ1: Hey, good to see you again! How have you been feeling?")
             
 
             # start timer
@@ -271,6 +275,36 @@ class MainWindow(QMainWindow):
     def update_report(self, report_data):
         self.metrics = report_data
 
+    def animate(self, start_rect, end_rect):
+        self.setGeometry(*start_rect)
+        self.show()
+        
+        animation = QPropertyAnimation(self, b"geometry")
+        animation.setDuration(500)
+        animation.setStartValue(QRect(*start_rect))
+        animation.setEndValue(QRect(*end_rect))
+        animation.start()
+
+    def create_navBar(self):
+        navBar = QWidget()
+        navBarLayout = QHBoxLayout()
+        
+        aboutMenu = QPushButton("About")
+        assessMenu = QPushButton("Assessment")
+        resourceMenu = QPushButton("Resources")
+        contactMenu = QPushButton("Contact Us")
+        loginMenu = QPushButton("Login/Sign Up")
+     
+        navBarLayout.addWidget(aboutMenu)
+        navBarLayout.addWidget(assessMenu)
+        navBarLayout.addWidget(resourceMenu)
+        navBarLayout.addWidget(contactMenu)
+        navBarLayout.addWidget(loginMenu)
+        navBarLayout.insertSpacing(0,400)
+        
+        navBar.setLayout(navBarLayout)
+        
+        return navBar
 
 class ReportScreen(QMainWindow):
     # class constructor
@@ -400,7 +434,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     # create and show mainWindow
-    mainWindow = MainWindow()
+    mainWindow = MainWindow2()
     mainWindow.show()
 
     sys.exit(app.exec_())

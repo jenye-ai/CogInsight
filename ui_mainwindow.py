@@ -18,24 +18,21 @@ class Ui_Form(object):
         self.centralwidget = QtWidgets.QWidget(Form)
         self.centralwidget.setObjectName("centralwidget")
         self.Interviewer = QtWidgets.QLabel(self.centralwidget)
-        self.Interviewer.setGeometry(QtCore.QRect(40, 170, 841, 581))
+        self.Interviewer.setGeometry(QtCore.QRect(40, 140, 981, 611))
         self.Interviewer.setStyleSheet("")
         self.Interviewer.setText("")
         self.Interviewer.setObjectName("Interviewer")
         self.Transcript = QtWidgets.QLabel(self.centralwidget)
-        self.Transcript.setGeometry(QtCore.QRect(910, 170, 401, 431))
+        self.Transcript.setGeometry(QtCore.QRect(1050, 300, 261, 341))
         self.Transcript.setStyleSheet("background-color: rgb(255, 203, 230);\n"
 "padding: 2px;")
         self.Transcript.setText("")
         self.Transcript.setObjectName("Transcript")
         self.image_label = QtWidgets.QLabel(self.centralwidget)
-        self.image_label.setGeometry(QtCore.QRect(910, 20, 401, 131))
+        self.image_label.setGeometry(QtCore.QRect(1050, 140, 261, 131))
         self.image_label.setObjectName("image_label")
-        self.menu = QtWidgets.QLabel(self.centralwidget)
-        self.menu.setGeometry(QtCore.QRect(30, 20, 851, 131))
-        self.menu.setObjectName("menu")
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton.setGeometry(QtCore.QRect(910, 620, 401, 131))
+        self.pushButton.setGeometry(QtCore.QRect(1050, 650, 261, 131))
         self.pushButton.setStyleSheet("background-color: rgb(255, 203, 230);\n"
 "border-style: outset;\n"
 "border-width: 2px;\n"
@@ -58,5 +55,4 @@ class Ui_Form(object):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "MainWindow"))
         self.image_label.setText(_translate("Form", "Human Video"))
-        self.menu.setText(_translate("Form", "Menu bar"))
         self.pushButton.setText(_translate("Form", "Ready to Speak"))

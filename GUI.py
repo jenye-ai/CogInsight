@@ -3,10 +3,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from ui_mainwindow import Ui_Form
+from display import MainWindow2
 
 #importing constants from other file
 import mod_constant
-import gen_constants
 
 image_path = "images/"
 filler = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vel nisl justo. Nunc vitae sem sed."
@@ -14,7 +14,6 @@ class MainWindow(QMainWindow):
     # class constructor
     def __init__(self):
         super(MainWindow, self).__init__()
-        #self.setViewport(QtGui.QOpenGLWidget())
         self.setWindowTitle('CogInsight')
         self.setFixedWidth(1350)
         self.setFixedHeight(900)
@@ -714,7 +713,6 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(mainWidget)   
         
     def act2_UI_p1_end(self):
-        self.timer_mod2_1.stop()
         self.timer_mod2_1.deleteLater()
         navbar = self.create_navBar()
         faceRow = self.create_mod2_rows(mod_constant.LEFT1_IMAGE, mod_constant.RIGHT1_IMAGE)
@@ -834,7 +832,6 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(mainWidget)   
         
     def act2_UI_p2_end(self):
-        self.timer_mod2_2.stop()
         self.timer_mod2_2.deleteLater()
         navbar = self.create_navBar()
         faceRow = self.create_mod2_rows(mod_constant.LEFT2_IMAGE, mod_constant.RIGHT2_IMAGE)
@@ -958,7 +955,6 @@ class MainWindow(QMainWindow):
         
     def act2_UI_p3_end(self):
         navbar = self.create_navBar()
-        self.timer_mod2_3.stop()
         self.timer_mod2_3.deleteLater()
         faceRow = self.create_mod2_rows(mod_constant.LEFT3_IMAGE, mod_constant.RIGHT3_IMAGE)
                 
@@ -1067,20 +1063,23 @@ class MainWindow(QMainWindow):
         moduleStartButton.clicked.connect(self.act3_UI_p1_first)
         
     def act3_UI_p1_first(self):
-        navbar = self.create_navBar()
-        filler = QLabel("This is where you put Assessment 3")
-        moduleDescLayout = QVBoxLayout()
-        emptyLabel = QLabel(" ")
+        # navbar = self.create_navBar()
+        # filler = QLabel("This is where you put Assessment 3")
+        # moduleDescLayout = QVBoxLayout()
+        # emptyLabel = QLabel(" ")
         
-        moduleDescLayout.addWidget(navbar)
-        moduleDescLayout.addWidget(emptyLabel)
-        moduleDescLayout.addWidget(filler)
-        moduleDescLayout.addWidget(emptyLabel)
+        # moduleDescLayout.addWidget(navbar)
+        # moduleDescLayout.addWidget(emptyLabel)
+        # moduleDescLayout.addWidget(filler)
+        # moduleDescLayout.addWidget(emptyLabel)
         
-        mainWidget = QWidget()
-        mainWidget.setLayout(moduleDescLayout)
-        self.setCentralWidget(mainWidget)
-        
+        # mainWidget = QWidget()
+        # mainWidget.setLayout(moduleDescLayout)
+        # self.setCentralWidget(mainWidget)
+        self.window2 = MainWindow2()
+        #self.window2.show()
+        self.window2.animate(self.geometry().getRect(), self.window2.geometry().getRect())
+        self.close()
 
         
 if __name__ == '__main__':
