@@ -10,6 +10,7 @@ Welcome to the 462ModelPipeline! As an editor, please use the following instruct
 
 
 To run pyqt5 designer to create new UI designs, run ```pyqt5-tools designer```
+To convert the resulting .ui file to python, run ```pyuic5 form.ui > form.py ```
 
 
 To run the current protoype, run ```python3 display.py```
