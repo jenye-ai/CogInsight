@@ -1145,11 +1145,12 @@ class VideoRecorder(QThread):
             ret, frame = self.cap.read()
             if not ret:
                 break
-            self.recordFrame(frame)
-            elapsed_time = time.time() - start_time
-            remaining_time = frame_duration - elapsed_time
-            if remaining_time > 0:
-                time.sleep(remaining_time)
+            if self.recording:
+                self.recordFrame(frame)
+                elapsed_time = time.time() - start_time
+                remaining_time = frame_duration - elapsed_time
+                if remaining_time > 0:
+                    time.sleep(remaining_time)
         self.quit()
 
 
