@@ -1,9 +1,11 @@
 # CogInsight
 Monitoring Therapeutic Progress for Depressive Symptoms
+
 Authors: Jennifer Ye, Catherine Bui, Kayley Ting, Katie Chen
+
 Capstone Project Advisor: Dr. Paul Fieguth
 
-![alt text](link)
+![alt text](https://github.com/jenye-ai/CogInsight/demo.gif)
 
 Solution to be used by young adults aged 18-23 engaging in CBT to improve objectivity in the longitudinal monitoring of depressive symptoms, empowering users and clinicians with objective data points helping improve mental health outcomes by providing quantitative and interpretable metrics of psychological indicators without being intrusive.
 
