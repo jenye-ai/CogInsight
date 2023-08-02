@@ -9,6 +9,7 @@ PROCESSED_DIR =  "processed_frames"
 
 QUESTION_PATH = "interviewq.mp4"
 AUDIO_PATH = "interviewq.wav"
+DEMO_AUDIO = "demo_audio.wav"
 
 MENU_PATH = "menu_bar.jpg"
 
@@ -20,3 +21,6 @@ SVM_PATH = "video_models/smileCNN_iter2_SVM.model"
 
 #Emonet
 EMONET_PATH = "video_models/emonet_8.pth"
+
+#Audio
+AUDIO_PATH = "audio_models/tabnet_model"
