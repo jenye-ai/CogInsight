@@ -85,7 +85,7 @@ class AudioExtractFeatures():
     def __init__(self, audio_path):
         self.audio_path = audio_path
 
-    def __compute_features__(signal, sampling_rate):
+    def __compute_features__(self, signal, sampling_rate):
         """
         Mid-term feature extraction
         """
@@ -95,8 +95,7 @@ class AudioExtractFeatures():
         short_step = 0.050
 
         short_features, short_feature_names = \
-            ShortTermFeatures.feature_extraction(signal, sampling_rate,
-                                                short_window, short_step)
+            ShortTermFeatures.feature_extraction(signal, sampling_rate, short_window, short_step)
 
         n_stats = 2
         n_feats = len(short_features)
@@ -130,7 +129,7 @@ class AudioExtractFeatures():
         mid_features = np.nan_to_num(mid_features)
         return mid_features, short_features, mid_feature_names
     
-    def __append_labels__(features_df):
+    def __append_labels__(self,features_df):
         sample_score = 23
         score = sample_score
 

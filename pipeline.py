@@ -124,9 +124,7 @@ class VideoPipeline():
         return hasFrames, image
     
 class AudioPipeline():
-    def __init__(self, dir, frameRate=0.5, prefix = "image", folder = "original_frames", processed_folder = "processed_frames"):
-        self.frameRate = frameRate
-        self.frame_path = dir+ folder + "/" 
+    def __init__(self, dir, processed_folder = "processed_audio"):
         self.processed_path = dir+ processed_folder + "/" 
         self.audio_score = []
 
@@ -134,7 +132,8 @@ class AudioPipeline():
 
     def execute(self):
         #Step 0 load audio file
-        wav_file = constants.DEMO_AUDIO
+        print("WORKING")
+        wav_file = constants.ANSWER_PATH
         sampling_rate, signal = audioBasicIO.read_audio_file(wav_file)
         signal = audioBasicIO.stereo_to_mono(signal)
 
@@ -144,9 +143,10 @@ class AudioPipeline():
         mid_features = np.transpose(mid_features)
         features_df = pd.DataFrame(mid_features,
                         columns=feature_names)
-        
+
         #Step 2 append labels and writes to csv
-        feature_extractor.__append_labels__(features_df)
+        audio_features = feature_extractor.__append_labels__(features_df)
+        audio_features.to_csv(constants.AUDIO_FEATURES_PATH, index=False)
 
         #Step 3 load in audio network
         audio_filename = constants.AUDIO_PATH
@@ -154,22 +154,15 @@ class AudioPipeline():
         model.load_model(audio_filename)
 
         #Step 4 load in pre-computed features (demo sample)
-        path = constants.PRECOMPUTED_FEATURES_PATH
+        path = constants.AUDIO_FEATURES_PATH
         df = pd.read_csv(path)
-        df = df.drop(columns=["Unnamed: 0"])
-        df = df.drop(columns=['PHQ_8NoInterest', 'PHQ_8Depressed', 'PHQ_8Sleep', 'PHQ_8Tired', 'PHQ_8Appetite', 'PHQ_8Failure', 'PHQ_8Concentrating', 'PHQ_8Moving', 'PHQ_8Total'])
-        X_test = df[df.columns.difference(['label'])].values
-        y_test = df['label'].values
-        preds = model.predict(X_test)
-        test_acc = accuracy_score(preds, y_test)
 
-        # This is the score
-        total = sum(preds) / len(preds)
-        print(total)
-        print(f"The test accuracy for {path} is {test_acc}")
+        preds = model.predict(df.values)
+        final_df = pd.concat([df, preds], axis=1)
+        print(f"Audio predictions: {preds}")
+        return final_df
 
-        #Step 5 final output
-        self.audio_score.append(total)
+      
 
 
 

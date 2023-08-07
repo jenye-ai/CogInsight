@@ -18,7 +18,7 @@ import numpy as np
 
 import pyaudio
 import constants
-from pipeline import VideoPipeline
+from pipeline import VideoPipeline, AudioPipeline
 import wave
 import soundfile as sf
 import sounddevice as sd
@@ -259,11 +259,11 @@ class MainWindow2(QMainWindow):
             self.startLoadingScreen()
 
     def startLoadingScreen(self):
-        # self.loading = LoadingScreen()
-        # self.loading.metrics_done.connect(self.update_report)
-        # self.setWindowTitle("Processing your video...")
-        # self.loading.finished.connect(self.startReportScreen)
-        # self.loading.show()
+        self.loading = LoadingScreen()
+        self.loading.metrics_done.connect(self.update_report)
+        self.setWindowTitle("Processing your video...")
+        self.loading.finished.connect(self.startReportScreen)
+        self.loading.show()
         self.loading = ReportScreen(self.metrics)
         self.loading.show()
         self.close()
@@ -421,8 +421,10 @@ class Worker(QThread):
     report = pyqtSignal(object)
 
     def run(self):
-        pipeline = VideoPipeline(constants.OUTPUT_DIR, frameRate=constants.FRAME_RATE, prefix = constants.IMAGE_PREFIX, folder = constants.FRAME_DIR, processed_folder = constants.PROCESSED_DIR)
-        report = pipeline.execute(constants.VIDEO_PATH)
+        video_pipeline = VideoPipeline(constants.OUTPUT_DIR, frameRate=constants.FRAME_RATE, prefix = constants.IMAGE_PREFIX, folder = constants.FRAME_DIR, processed_folder = constants.PROCESSED_DIR)
+        report = video_pipeline.execute(constants.VIDEO_PATH)
+        #audio_pipeline = AudioPipeline(constants.OUTPUT_DIR)
+        #audio_df = audio_pipeline.execute()
         self.report.emit(report)
         self.finished.emit()
         self.quit()
