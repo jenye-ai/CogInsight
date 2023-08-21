@@ -6,7 +6,9 @@ Authors: Jennifer Ye, Catherine Bui, Kayley Ting, Katie Chen
 Capstone Project Advisor: Dr. Paul Fieguth
 
 ![alt text](demo.gif)
-![alt text](therapist-report.png)
+<img src="therapist-report.png" alt="drawing" width="200"/>
+
+
 
 Solution to be used by young adults aged 18-23 engaging in CBT to improve objectivity in the longitudinal monitoring of depressive symptoms, empowering users and clinicians with objective data points helping improve mental health outcomes by providing quantitative and interpretable metrics of psychological indicators without being intrusive.
 
@@ -17,7 +19,7 @@ Solution to be used by young adults aged 18-23 engaging in CBT to improve object
 - **Multimodal Data Collection:** Utilizes audio, video, and interactive modalities to capture a comprehensive picture of patients' mental health, enabling a holistic understanding of their mental and emotional well-being.
 - **Visualizations and Reports:** Presents data through clear visual aids and informative reports.
 
-Therapist Report Dashboard can be found here: [https://public.tableau.com/app/profile/jennifer.ye7509/viz/CogInsight-TherapistReport/Dashboard1]
+Sample Therapist Report Dashboard can be found here: [https://public.tableau.com/app/profile/jennifer.ye7509/viz/CogInsight-TherapistReport/Dashboard1]
 
 # Setup
 
